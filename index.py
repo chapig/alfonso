@@ -11,7 +11,7 @@ db = Database()
 
 db.update_all_prefixes()
 
-extensions = ['cogs.games','cogs.moderation', 'cogs.help','cogs.general', 'cogs.economy', 'cogs.wikipedia', 'cogs.img', 'cogs.translator', 'cogs.profile', 'cogs.exp', 'cogs.config']
+extensions = ['cogs.games','cogs.moderation', 'cogs.help','cogs.general', 'cogs.economy', 'cogs.wikipedia', 'cogs.images', 'cogs.translator', 'cogs.profile', 'cogs.exp', 'cogs.config']
 
 def num_there(s):
     return any(i.isdigit() for i in s)
