@@ -237,8 +237,6 @@ class GAME:
 
             if self.round == self.all_rounds:
                 
-                for i in self.players:
-
                 await self.ctx.send(embed=Embed(title=None, 
                                                 description="El juego terminó, gracias por jugar. El **ganador** es {} con **{}** puntos. \n{}".format(self.ctx.guild.get_member(self.users.winner()).mention, 
                                                                                                                                                        self.users.score(self.users.winner()),                                                                                                          
