@@ -1,7 +1,5 @@
-import discord
+import discord, datetime, asyncio
 from discord.ext import commands
-import datetime
-import asyncio
 from discord.ext.commands import Cog
 
 class CannotPaginate(Exception):
@@ -63,18 +61,18 @@ class Pages:
             self.permissions = self.channel.permissions_for(ctx.bot.user)
 
         if not self.permissions.embed_links:
-            raise CannotPaginate('El bot no tiene permisos para enviar embeds.')
+            raise CannotPaginate('Bot does not have permissions to send embeds.')
 
         if not self.permissions.send_messages:
-            raise CannotPaginate('El bot no puede enviarm ensajes.')
+            raise CannotPaginate('Bot does not have permissions to send messages.')
 
         if self.paginating:
             # verify we can actually use the pagination session
             if not self.permissions.add_reactions:
-                raise CannotPaginate('El bot no puede añadir reacciones.')
+                raise CannotPaginate('Bot cannot add reactions.')
 
             if not self.permissions.read_message_history:
-                raise CannotPaginate('El bot no puede leer el historial de mensajes.')
+                raise CannotPaginate('Bot cannot read messages history.')
 
     def get_page(self, page):
         base = (page - 1) * self.per_page
@@ -89,9 +87,9 @@ class Pages:
 
         if self.maximum_pages > 1:
             if self.show_entry_count:
-                text = f'Página {page}/{self.maximum_pages} ({len(self.entries)} entradas)'
+                text = f'Page {page}/{self.maximum_pages} ({len(self.entries)} entries)'
             else:
-                text = f'Página {page}/{self.maximum_pages}'
+                text = f'Page {page}/{self.maximum_pages}'
 
             self.embed.set_footer(text=text)
 
@@ -105,7 +103,7 @@ class Pages:
             return
 
         p.append('')
-        p.append('Reacciona a \N{INFORMATION SOURCE} para más información')
+        p.append('React on \N{INFORMATION SOURCE} for more information.')
         self.embed.description = '\n'.join(p)
         self.message = await self.channel.send(embed=self.embed)
         for (reaction, _) in self.reaction_emojis:
@@ -144,7 +142,7 @@ class Pages:
     async def numbered_page(self):
         """Go to Given Page"""
         to_delete = []
-        to_delete.append(await self.channel.send('Escribe el número de la página a la que quieras ir.'))
+        to_delete.append(await self.channel.send("Type the page's number you want to check."))
 
         def message_check(m):
             return m.author == self.author and \
@@ -154,7 +152,7 @@ class Pages:
         try:
             msg = await self.bot.wait_for('message', check=message_check, timeout=30.0)
         except asyncio.TimeoutError:
-            to_delete.append(await self.channel.send('Esto tomó mucho tiempo.'))
+            to_delete.append(await self.channel.send('You took way too long.'))
             await asyncio.sleep(5)
         else:
             page = int(msg.content)
@@ -162,7 +160,7 @@ class Pages:
             if page != 0 and page <= self.maximum_pages:
                 await self.show_page(page)
             else:
-                to_delete.append(await self.channel.send(f'Página inválida - ({page}/{self.maximum_pages})'))
+                to_delete.append(await self.channel.send(f'Page does not exist - ({page}/{self.maximum_pages})'))
                 await asyncio.sleep(5)
 
         try:
@@ -172,16 +170,16 @@ class Pages:
 
     async def show_help(self):
         """shows this message"""
-        messages = ['Este comando de ayuda es interactivo.\n']
-        messages.append('Navega a través de estas páginas usando las ' \
-                        'reacciones. Son las siguientes:\n')
+        messages = ['Interactive help command\n']
+        messages.append('Navigate through the pages using' \
+                        'the following reactions.\n')
 
         for (emoji, func) in self.reaction_emojis:
             messages.append(f'{emoji} {func.__doc__}')
 
         self.embed.description = '\n'.join(messages)
         self.embed.clear_fields()
-        self.embed.set_footer(text=f'Estábamos en la página {self.current_page} antes de este mensaje.')
+        self.embed.set_footer(text=f'You were on page {self.current_page} before this message.')
         await self.message.edit(embed=self.embed)
 
         async def go_back_to_current_page():
@@ -254,9 +252,9 @@ class FieldPages(Pages):
 
         if self.maximum_pages > 1:
             if self.show_entry_count:
-                text = f'Página {page}/{self.maximum_pages} ({len(self.entries)} resultados)'
+                text = f'Page {page}/{self.maximum_pages} ({len(self.entries)} entries)'
             else:
-                text = f'Página {page}/{self.maximum_pages}'
+                text = f'Page {page}/{self.maximum_pages}'
 
             self.embed.set_footer(text=text)
 
@@ -374,7 +372,7 @@ class HelpPaginator(Pages):
         if command.description:
             self.description = f'{command.description}\n\n{command.help}'
         else:
-            self.description = command.help or 'No hay descripción de ayuda para este comando.'
+            self.description = command.help or 'No help description for this command.'
 
         self.prefix = cleanup_prefix(ctx.bot, ctx.prefix)
         return self
@@ -383,7 +381,7 @@ class HelpPaginator(Pages):
     @classmethod
     async def from_bot(cls, ctx):
         def key(c):
-            return c.cog_name or '\u200bconfiguración y comandos básicos'
+            return c.cog_name or '\u200bconfiguration and basic commands'
 
         entries = sorted(ctx.bot.commands, key=key)
         nested_pages = []
@@ -420,7 +418,7 @@ class HelpPaginator(Pages):
 
     def get_bot_page(self, page):
         cog, description, commands = self.entries[page - 1]
-        self.title = f'Comandos del módulo de {cog}.'
+        self.title = f"{cog}'s commands."
         self.description = description
         return commands
 
@@ -432,15 +430,15 @@ class HelpPaginator(Pages):
         self.embed.description = self.description
         self.embed.title = self.title
 
-        self.embed.set_footer(text=f'Usa "{self.prefix}help comando" para saber más información sobre un comando.')
+        self.embed.set_footer(text=f'Use "{self.prefix}help command" to get more information about a command.')
 
         signature = _command_signature
 
         for entry in entries:
-            self.embed.add_field(name=signature(entry), value=entry.short_doc or "No hay descripción de ayuda para este comando.", inline=False)
+            self.embed.add_field(name=signature(entry), value=entry.short_doc or "No command description for this command.", inline=False)
 
         if self.maximum_pages:
-            self.embed.set_author(name=f'Página {page}/{self.maximum_pages} ({self.total} comandos)')
+            self.embed.set_author(name=f'Alfonso | Help page {page}/{self.maximum_pages} ({self.total} commands)', icon_url="https://cdn.discordapp.com/avatars/717935202789359627/524b51a0b109a89bd277f464ebaedf66.webp?size=1024")
 
         if not self.paginating:
             return await self.channel.send(embed=self.embed)
@@ -462,14 +460,14 @@ class HelpPaginator(Pages):
     async def show_help(self):
         """Shows This Message"""
 
-        self.embed.title = 'Página de ayuda'
-        self.embed.description = 'Aquí tendrás la información sobre los comandos del bot.'
+        self.embed.title = 'Help Page'
+        self.embed.description = "You'll get information on how commands work with this help command."
 
         messages = [f'{emoji} {func.__doc__}' for emoji, func in self.reaction_emojis]
         self.embed.clear_fields()
-        self.embed.add_field(name='¿Para qué sirven estas reacciones?', value='\n'.join(messages), inline=False)
+        self.embed.add_field(name='What are the reactions for?', value='\n'.join(messages), inline=False)
 
-        self.embed.set_footer(text=f'Estábamos en la página {self.current_page} antes de este mensaje.')
+        self.embed.set_footer(text=f'You were on {self.current_page} before this message..')
         await self.message.edit(embed=self.embed)
 
         async def go_back_to_current_page():
@@ -482,24 +480,24 @@ class HelpPaginator(Pages):
         """Information On The Bot"""
 
         self.embed.title = 'Alfonso'
-        self.embed.description = 'Página de ayuda.'
+        self.embed.description = 'Help Page'
         self.embed.clear_fields()
 
         entries = (
-            ('`<argumento>`', 'Esto significa que el argumento es **requerido**.'),
-            ('`[argumento]`', 'Esto significa que el argumento es **opcional**.'),
-            ('`[A|B]`', 'Esto significa que puede ser **A o B**.'),
-            ('`[argumento...]`', 'Esto significa que pueden haber varios argumentos.\n' \
-                                'Ahora que ya sabes sobre esto, deberías saber que.\n' \
-                                'no se escriben los corchetes ni llaves.')
+            ('`<argument>`', 'Argument is **required**.'),
+            ('`[argument]`', 'Argument is **optional**.'),
+            ('`[A|B]`', 'It is either **A or B**.'),
+            ('`[argument...]`', 'Various arguments can be passed.\n' \
+                                'Now that you know this, you must know that\n' \
+                                '`<` `>` `|` `[]` are not used.')
         )
 
-        self.embed.add_field(name='Cómo utilizar al bot Felipe', value='Utilizar el bot es fácil, a continuación se explicará cómo.')
+        self.embed.add_field(name='How to use Felipe', value='Using this bot is easy, this will explain how.')
 
         for name, value in entries:
             self.embed.add_field(name=name, value=value, inline=False)
 
-        self.embed.set_footer(text=f'Estábamos en la página {self.current_page} antes de este mensaje.')
+        self.embed.set_footer(text=f'You were on page {self.current_page} before this message.')
         await self.message.edit(embed=self.embed)
 
         async def go_back_to_current_page():
@@ -508,9 +506,9 @@ class HelpPaginator(Pages):
 
         self.bot.loop.create_task(go_back_to_current_page())
 
-class Ayuda(commands.Cog):
+class Help(commands.Cog):
     """
-    Todo lo relacionado a la ayuda está en este módulo. Para saber sobre los demás módulos, vea la página siguiente.
+    > This is the help's command. Feel free to navigate through the pages to learn more about commands and modules.
     """
 
     def __init__(self, client):
@@ -518,7 +516,7 @@ class Ayuda(commands.Cog):
 
     @commands.command(name='help', aliases=["Help","ayuda","Ayuda"])
     async def _help(self, ctx, *, command = None):
-        """Muestra la información de ayuda de un comando o módulo."""
+        """Show information regarding a module or command."""
 
         try:
             if command is None:
@@ -528,7 +526,7 @@ class Ayuda(commands.Cog):
 
                 if entity is None:
                     clean = command.replace('@', '@\u200b')
-                    return await ctx.send(f"**Comando o categoría '{clean}' no encontrada.**")
+                    return await ctx.send(f"**Commmand or module '{clean}' not found.**")
                 elif isinstance(entity, commands.Command):
                     p = await HelpPaginator.from_command(ctx, entity)
                 else:
@@ -539,4 +537,4 @@ class Ayuda(commands.Cog):
             await ctx.send("**{}**".format(ex))
 
 def setup(client):
-  client.add_cog(Ayuda(client))
+  client.add_cog(Help(client))
