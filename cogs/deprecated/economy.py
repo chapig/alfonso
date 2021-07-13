@@ -190,13 +190,7 @@ class Economia(commands.Cog):
       except Exception as error:
         await ctx.send(embed=send_embed_error(ctx))
         print(error)
-
-
-
-
-    
-    
-
+        
 def setup(client):
     client.add_cog(Economia(client))
     print('El módulo de Economia cargó correctamente.')
