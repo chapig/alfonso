@@ -9,7 +9,7 @@ import pyodbc
 
 botName = 'Alfonso'
 
-key_var_name = '33f66376498340f9ad5a85e70fef46bd'
+key_var_name = 'TOKEN'
 endpoint = 'https://api.cognitive.microsofttranslator.com'
 
 class Traduccion(commands.Cog):
