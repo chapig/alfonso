@@ -17,7 +17,7 @@ intents.members = True
 intents.presences = True
 
 cogs = [
-    "cogs.music", "cogs.configuracion", "cogs.general", "cogs.help", "cogs.moderacion",
+    "cogs.music", "cogs.configuration", "cogs.general", "cogs.help", "cogs.moderacion",
     "cogs.comunidad", "error_handler.main", "cogs.matematicas"
 ]
 
