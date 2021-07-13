@@ -22,8 +22,8 @@ class QuotaExceeded(Error):
 class Azure:
   
     def __init__(self):
-        self.subscription_key = 'b246445c758b4118adc7129e960836d6'
-        self.subscription_endpoint = "https://alfonso-search.cognitiveservices.azure.com"
+        self.subscription_key = 'TOKEN'
+        self.subscription_endpoint = "https://NAME.cognitiveservices.azure.com"
         self.img = ImageSearchClient(endpoint=self.subscription_endpoint, credentials=CognitiveServicesCredentials(self.subscription_key))
         self.timestr = time.strftime("%Y%m%d-%H%M")
         self.access_token = None
@@ -42,7 +42,7 @@ class Azure:
      
 
     def translate(self, text, language):
-      key_var_name = '33f66376498340f9ad5a85e70fef46bd'
+      key_var_name = 'TOKEN'
       endpoint = 'https://api.cognitive.microsofttranslator.com'
       
       headers = {
@@ -64,7 +64,7 @@ class Azure:
       return(response[0]['translations'][0]['text'])
       
     def audio(self, text):
-        speech_key, service_region = "4988b609f44a41e092bd70a91a8d5630", "eastus2"
+        speech_key, service_region = "TOKEN", "LOCATION"
         speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
         random_f = f"{random.choice(range(1,55555555555))}.wav"
         audio_filename = random_f
@@ -74,9 +74,9 @@ class Azure:
         return random_f 
   
     def get_token(self):
-      fetch_token_url = "https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issueToken"
+      fetch_token_url = "https://LOCATION.api.cognitive.microsoft.com/sts/v1.0/issueToken"
       headers = {
-          'Ocp-Apim-Subscription-Key': '8201b5ca9a0e426a8fcce99cea0512b7'
+          'Ocp-Apim-Subscription-Key': 'TOKEN'
       }
       response = requests.post(fetch_token_url, headers=headers)
       self.access_token = str(response.text)
