@@ -53,10 +53,6 @@ class Alfonso(commands.AutoShardedBot):
     async def ready(self):
         await self.wait_until_ready()
         os.system("clear")
-
-        if not hasattr(self, 'uptime'):
-            self.uptime = datetime.utcnow()
-
         try:
             for cog in cogs:
                 self.load_extension(f"{cog}")
